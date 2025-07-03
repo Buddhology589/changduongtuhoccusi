@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Những Chặng Đường Tu Học Của Người Cư Sĩ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: Cấu trúc ứng dụng được thiết kế theo một hành trình khám phá logic, không theo thứ tự chương mục của sách. Bắt đầu bằng việc giới thiệu "Tư Tưởng Cốt Lõi" để người dùng nắm vững triết lý nền tảng. Tiếp theo, "Lộ Trình Tu Học" được trình bày dưới dạng hai chặng đường song song (Nền Tảng và Chuyên Sâu), cho phép người dùng tự do lựa chọn khám phá. Trong mỗi chặng, các khái niệm phức tạp như Ngũ Giới và các pháp thiền được trực quan hóa bằng thẻ tương tác và biểu đồ để tăng tính dễ hiểu và tương tác. Cấu trúc này ưu tiên trải nghiệm người dùng, giúp họ tiếp cận thông tin một cách tự nhiên và có hệ thống, thay vì một trình tự tuyến tính cứng nhắc. -->
+    <!-- Visualization & Content Choices: 
+        1.  Tư tưởng cốt lõi -> Goal: Inform -> 3 thẻ thông tin (HTML/CSS) -> Tóm tắt 3 trụ cột triết học, tạo nền tảng vững chắc.
+        2.  Ngũ Giới vs. Năm Đức Hạnh -> Goal: Compare/Organize -> 5 thẻ tương tác lật mặt (HTML/CSS/JS) -> Làm nổi bật sự chuyển đổi khái niệm từ "cấm" sang "trau dồi đức hạnh", một điểm nhấn sư phạm của tác giả.
+        3.  Bát Quan Trai Giới -> Goal: Compare/Organize -> Bảng so sánh (HTML/CSS) -> So sánh trực quan sự nâng cấp từ Ngũ giới lên Bát quan trai, giúp người dùng thấy rõ sự khác biệt.
+        4.  19 Đề Mục Niệm Hơi Thở -> Goal: Organize/Change -> Biểu đồ cột (Chart.js/Canvas) -> Trực quan hóa lộ trình 19 bước phức tạp, chia thành 2 giai đoạn (Nhiếp Tâm và Ly Ác Pháp), giúp người dùng dễ dàng nắm bắt tiến trình.
+        5.  Các Pháp Hành -> Goal: Organize -> Accordion (HTML/CSS/JS) -> Trình bày các pháp thiền định một cách gọn gàng, cho phép người dùng xem chi tiết khi cần mà không làm rối giao diện.
+        Tất cả các lựa chọn đều nhằm mục đích chuyển đổi văn bản dày đặc thành các yếu tố tương tác, dễ tiêu hóa, hỗ trợ cấu trúc ứng dụng đã thiết kế. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #A0522D;
+            border-bottom-color: #A0522D;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
+        }
+        .section-title {
+            color: #8B4513;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #A0522D;
+            color: white;
+            transition: background-color 0.3s;
+            border-radius: 8px;
+        }
+        .btn-primary:hover {
+            background-color: #8B4513;
+        }
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem; }
+        .flip-card-back { transform: rotateY(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl font-bold text-[#8B4513]">Con Đường Tu Học</h1>
+                <div class="hidden sm:flex sm:space-x-8">
+                    <a href="#gioi-thieu" class="nav-link px-1 pt-1 pb-2 text-sm font-medium">Giới Thiệu</a>
+                    <a href="#lo-trinh" class="nav-link px-1 pt-1 pb-2 text-sm font-medium">Lộ Trình</a>
+                    <a href="#nen-tang" class="nav-link px-1 pt-1 pb-2 text-sm font-medium">Chặng 1: Nền Tảng</a>
+                    <a href="#chuyen-sau" class="nav-link px-1 pt-1 pb-2 text-sm font-medium">Chặng 2: Chuyên Sâu</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="gioi-thieu" class="text-center mb-16 md:mb-24">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-4">Những Chặng Đường Tu Học Của Người Cư Sĩ</h2>
+            <p class="max-w-3xl mx-auto text-base md:text-lg text-gray-600 mb-8">
+                Khám phá lộ trình tu tập thực tiễn và nhất quán theo tư tưởng của Trưởng lão Thích Thông Lạc, nhấn mạnh vào tự lực, giới luật và sự giải thoát ngay trong đời này.
+            </p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg text-[#A0522D] mb-2">Tư Tưởng Cốt Lõi: Tự Lực</h3>
+                    <p class="text-sm text-gray-600">Đức Phật là một con người thật, bằng xương bằng thịt. Ngài tự tu, tự chứng và làm chủ sinh tử. Vì vậy, mỗi người chúng ta cũng phải "tự thắp đuốc lên mà đi", không trông chờ vào tha lực.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg text-[#A0522D] mb-2">Tư Tưởng Cốt Lõi: Phê Phán</h3>
+                    <p class="text-sm text-gray-600">Bài trừ các pháp môn không thực tế, vay mượn từ ngoại đạo, và các kinh sách được cho là "nói dối" không mang lại lợi ích thiết thực, làm người tu lạc vào mê tín, ảo tưởng.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg text-[#A0522D] mb-2">Tư Tưởng Cốt Lõi: Giới Luật</h3>
+                    <p class="text-sm text-gray-600">"Giới luật còn, Phật giáo còn". Giới luật là nền tảng đạo đức, là hành động sống cụ thể để thanh lọc thân tâm, tạo điều kiện tiên quyết cho thiền định chân chánh và giải thoát.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="lo-trinh" class="text-center mb-16 md:mb-24">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-4">Lộ Trình Tu Học</h2>
+            <p class="max-w-2xl mx-auto text-gray-600 mb-8">
+                Hành trình tu tập được chia thành hai chặng đường rõ ràng, từ việc xây dựng nền tảng đạo đức vững chắc đến việc thực hành các pháp môn chuyên sâu để đạt đến giải thoát.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="#nen-tang" class="btn-primary py-2 px-6">Bắt đầu Chặng 1</a>
+                <a href="#chuyen-sau" class="btn-primary py-2 px-6">Khám phá Chặng 2</a>
+            </div>
+        </section>
+
+        <hr class="my-16 md:my-24 border-gray-200">
+
+        <section id="nen-tang" class="mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold section-title mb-2">Chặng 1: Xây Dựng Nền Tảng Đạo Đức</h2>
+                <p class="max-w-2xl mx-auto text-gray-600">Đây là giai đoạn "làm người" theo chuẩn mực Phật giáo, thông qua việc Quy Y Tam Bảo và thực hành Năm Đức Hạnh để tạo lập một đời sống đạo đức làm nền tảng cho sự giải thoát.</p>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-md mb-12">
+                <h3 class="text-2xl font-semibold text-[#A0522D] mb-4 text-center">Quy Y Tam Bảo: Chọn Nơi Nương Tựa</h3>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div>
+                        <h4 class="font-bold text-lg">Phật Bảo</h4>
+                        <p class="text-sm text-gray-600">Là Đức Phật Thích Ca Mâu Ni lịch sử, một con người thật đã tự mình tìm ra con đường giải thoát.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">Pháp Bảo</h4>
+                        <p class="text-sm text-gray-600">Là giáo pháp Tứ Chánh Cần: Ngăn ác diệt ác, sinh thiện tăng trưởng thiện. Một pháp môn thực tế, mang lại kết quả ngay lập tức.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">Tăng Bảo</h4>
+                        <p class="text-sm text-gray-600">Là các bậc Thánh Tăng đã chứng quả, sống nghiêm trì giới luật. Đây là ngôi báu khó tìm nhất.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-8">
+                 <h3 class="text-2xl font-semibold text-[#A0522D] mb-2">Ngũ Giới: Năm Đức Hạnh Cần Trau Dồi</h3>
+                 <p class="text-gray-600 text-sm">(Nhấn vào từng giới để xem đức hạnh tương ứng)</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner rounded-xl">
+                        <div class="flip-card-front card">
+                            <h4 class="text-lg font-semibold text-center">1. Cấm Sát Sanh</h4>
+                        </div>
+                        <div class="flip-card-back card bg-[#A0522D] text-white">
+                            <h4 class="text-lg font-bold">Đức Hiếu Sinh</h4>
+                            <p class="text-sm text-center">Lòng thương yêu sự sống của muôn loài, tuyệt đối không ăn thịt chúng sanh.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner rounded-xl">
+                        <div class="flip-card-front card">
+                            <h4 class="text-lg font-semibold text-center">2. Cấm Trộm Cắp</h4>
+                        </div>
+                        <div class="flip-card-back card bg-[#A0522D] text-white">
+                            <h4 class="text-lg font-bold">Đức Buông Xả</h4>
+                            <p class="text-sm text-center">Siêng năng làm lụng nhưng không dính mắc, sẵn sàng chia sẻ, giúp đỡ người khác.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner rounded-xl">
+                        <div class="flip-card-front card">
+                            <h4 class="text-lg font-semibold text-center">3. Cấm Tà Dâm</h4>
+                        </div>
+                        <div class="flip-card-back card bg-[#A0522D] text-white">
+                            <h4 class="text-lg font-bold">Đức Chung Thủy</h4>
+                            <p class="text-sm text-center">Giữ gìn sự chung thủy trong hôn nhân để bảo vệ hạnh phúc gia đình.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner rounded-xl">
+                        <div class="flip-card-front card">
+                            <h4 class="text-lg font-semibold text-center">4. Cấm Vọng Ngữ</h4>
+                        </div>
+                        <div class="flip-card-back card bg-[#A0522D] text-white">
+                            <h4 class="text-lg font-bold">Đức Thành Thật</h4>
+                            <p class="text-sm text-center">Không nói dối dưới mọi hình thức, không nịnh bợ, không nói xấu sau lưng.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner rounded-xl">
+                        <div class="flip-card-front card">
+                            <h4 class="text-lg font-semibold text-center">5. Cấm Uống Rượu</h4>
+                        </div>
+                        <div class="flip-card-back card bg-[#A0522D] text-white">
+                            <h4 class="text-lg font-bold">Đức Minh Mẫn</h4>
+                            <p class="text-sm text-center">Không dùng các chất gây nghiện, kích thích để giữ cho tâm trí luôn sáng suốt.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 md:my-24 border-gray-200">
+
+        <section id="chuyen-sau" class="mb-16 md:mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold section-title mb-2">Chặng 2: Tu Tập Chuyên Sâu</h2>
+                <p class="max-w-2xl mx-auto text-gray-600">Đây là giai đoạn "làm Thánh", thực hành các pháp môn khổ hạnh và thiền định cao cấp trong ngày Thọ Bát Quan Trai Giới để tiến thẳng đến mục tiêu giải thoát.</p>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-md mb-12">
+                <h3 class="text-2xl font-semibold text-[#A0522D] mb-4 text-center">So Sánh Giới Luật: Ngũ Giới và Bát Quan Trai</h3>
+                 <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Nội dung</th>
+                                <th scope="col" class="px-6 py-3">Ngũ Giới (Nền tảng)</th>
+                                <th scope="col" class="px-6 py-3">Bát Quan Trai Giới (Nâng cao)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium">Giới Dâm Dục</td>
+                                <td class="px-6 py-4">Cấm Tà Dâm (Không chung thủy)</td>
+                                <td class="px-6 py-4 font-bold">Cấm Dâm Dục (Tuyệt dục hoàn toàn)</td>
+                            </tr>
+                            <tr class="bg-gray-50 border-b">
+                                <td class="px-6 py-4 font-medium">Trang điểm, Giải trí</td>
+                                <td class="px-6 py-4">—</td>
+                                <td class="px-6 py-4 font-bold">Cấm trang điểm, ca hát, giường cao</td>
+                            </tr>
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-4 font-medium">Ăn Uống</td>
+                                <td class="px-6 py-4">Không giới hạn</td>
+                                <td class="px-6 py-4 font-bold">Cấm ăn phi thời (ăn ngày 1 bữa)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+
+            <div class="text-center mb-8">
+                 <h3 class="text-2xl font-semibold text-[#A0522D] mb-2">Các Pháp Hành Thiền Định</h3>
+                 <p class="text-gray-600">Công cụ để chiến đấu với giặc sinh tử luân hồi.</p>
+            </div>
+            
+            <div id="accordion" class="space-y-4">
+                <div class="card">
+                    <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-lg">
+                        <span>1. Định Chánh Niệm Tĩnh Giác</span>
+                        <span>&#9660;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-sm text-gray-600">Pháp tu tập tỉnh thức trong mọi hành động. Công cụ chính là "Đi Kinh Hành" (4 giai đoạn) và "Thân Hành Niệm" (dùng ý ra lệnh cho từng cử động). Mục đích là phá tan hôn trầm, thụy miên và sống trọn vẹn trong hiện tại.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                     <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-lg">
+                        <span>2. Định Niệm Hơi Thở (19 Đề Mục)</span>
+                        <span>&#9660;</span>
+                    </button>
+                     <div class="accordion-content px-4 pb-4">
+                        <p class="text-sm text-gray-600 mb-4">Pháp môn xương sống để nhiếp tâm, an trú tâm và đoạn trừ phiền não. Lộ trình gồm 19 bước được chia thành 2 giai đoạn chính:</p>
+                        <div class="chart-container">
+                            <canvas id="breathMeditationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-lg">
+                        <span>3. Định Vô Lậu</span>
+                        <span>&#9660;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-sm text-gray-600">Pháp thiền quán chiếu, tư duy và phân tích để phá trừ tận gốc các phiền não và tà kiến. Ví dụ: Quán "Thực Phẩm Bất Tịnh" để diệt trừ tâm tham ăn, bằng cách tư duy về sự ô uế, hôi thối, mầm bệnh trong thức ăn.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center mt-16 border-t pt-8 border-gray-200">
+            <p class="text-sm text-gray-500">Ứng dụng tương tác dựa trên nội dung sách "Những Chặng đường Tu Học Của Người Cư Sĩ" của Trưởng lão Thích Thông Lạc.</p>
+        </footer>
+
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            function changeActiveLink() {
+                let index = sections.length;
+                while(--index && window.scrollY + 100 < sections[index].offsetTop) {}
+                
+                navLinks.forEach((link) => link.classList.remove('active'));
+                if (index > -1 && navLinks[index]) {
+                   navLinks[index].classList.add('active');
+                }
+            }
+
+            changeActiveLink();
+            window.addEventListener('scroll', changeActiveLink);
+
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                if (!anchor.classList.contains('nav-link')) {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        document.querySelector(this.getAttribute('href')).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+            });
+
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('span:last-child');
+                    
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.innerHTML = '&#9660;';
+                    } else {
+                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                        document.querySelectorAll('.accordion-header span:last-child').forEach(i => i.innerHTML = '&#9660;');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.innerHTML = '&#9650;';
+                    }
+                });
+            });
+
+            const breathMeditationChartCtx = document.getElementById('breathMeditationChart').getContext('2d');
+            new Chart(breathMeditationChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Giai đoạn 1: Nhiếp Tâm (7 đề mục)', 'Giai đoạn 2: Ly Ác Pháp (12 đề mục)'],
+                    datasets: [{
+                        label: 'Số Lượng Đề Mục',
+                        data: [7, 12],
+                        backgroundColor: [
+                            'rgba(160, 82, 45, 0.6)',
+                            'rgba(139, 69, 19, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(160, 82, 45, 1)',
+                            'rgba(139, 69, 19, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Lộ Trình 19 Đề Mục Định Niệm Hơi Thở'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
